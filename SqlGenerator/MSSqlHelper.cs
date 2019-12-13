@@ -22,7 +22,7 @@ namespace SqlGenerator
 
             // create table 
             sql.AppendLine($"-- {table.Name}");
-            sql.AppendLine($"create table [{table.Name}]");
+            sql.AppendLine($"create table dbo.[{table.Name}]");
             sql.AppendLine("(");
 
             foreach (var column in table.Columns)
@@ -106,7 +106,7 @@ namespace SqlGenerator
                     index.IsUnique ? "unique" : "",
                     index.Name));
 
-                sql.Append($"    on [{table.Name}]");
+                sql.Append($"    on dbo.[{table.Name}]");
                 sql.Append("(");
 
                 columncount = 0;
@@ -143,7 +143,7 @@ namespace SqlGenerator
             {
                 itemcount++;
 
-                sql.AppendLine("insert into [TSystemCode]([Uid], [ItemKind], [ItemCode], [ItemValue], [Description], [Sort], [ShowOptionItem], [CodeType], [CreateUserId], [CreateTime], [ModifyUserId], [ModifyTime])");
+                sql.AppendLine("insert into dbo.[TSystemCode]([Uid], [ItemKind], [ItemCode], [ItemValue], [Description], [Sort], [ShowOptionItem], [CodeType], [CreateUserId], [CreateTime], [ModifyUserId], [ModifyTime])");
                 sql.AppendLine(String.Format("  values({0}, '{1}', '{2}', '{3}', '{4}', {5}, '{6}', '{7}', '{8}', {9}, '{10}', {11});",
                         //Guid.NewGuid().ToString().ToLower(),
                         "newid()",
