@@ -109,6 +109,19 @@ namespace SqlGenerator
 
                     sqlTable.Columns.Add(newColumn);
                 }
+                else if (splits.Length == 6)
+                {
+                    // Column
+                    Column newColumn = new Column();
+                    newColumn.Name = splits[0].Trim();
+                    newColumn.Description = splits[1].Trim();
+                    newColumn.DataType = splits[2].Trim();
+                    newColumn.DataLength = splits[3].Trim();
+                    newColumn.Mandatory = splits[4].ToLower().Equals("y");
+
+                    sqlTable.Columns.Add(newColumn);
+                }
+
             }
 
             if (sqlTable != null)

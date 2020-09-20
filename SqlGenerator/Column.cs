@@ -12,5 +12,6 @@ namespace SqlGenerator
         public string Description { get; set; }
         public string DataType { get; set; }
         public string DataLength { get; set; }
+        public bool Mandatory { get; set; }
     }
 }

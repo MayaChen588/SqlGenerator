@@ -63,11 +63,11 @@ namespace SqlGenerator
                     dataType = column.DataType.ToLower();
                 }
 
-                sql.Append(String.Format("    {0,-31} {1, -15} {2}{3}{4}",
+                sql.Append(String.Format("    {0,-31} {1, -15}{2}{3}{4}",
                     "[" + column.Name + "]",
                     dataType,
-                    column.Name.ToLower() == "uid" ? "not null" : "",
-                    column.DataType.ToLower().EndsWith("char") ? "collate Chinese_Taiwan_Stroke_CI_AS" : "",
+                    column.DataType.ToLower().EndsWith("char") ? " collate Chinese_Taiwan_Stroke_CI_AS" : "",
+                    column.Mandatory ? " not null" : "",
                     columncount < table.Columns.Count ? "," : ""));
 
                 if (columncount == table.Columns.Count)
@@ -144,13 +144,13 @@ namespace SqlGenerator
                 itemcount++;
 
                 sql.AppendLine("insert into dbo.[TSystemCode]([Uid], [ItemKind], [ItemCode], [ItemValue], [Description], [Sort], [ShowOptionItem], [CodeType], [CreateUserId], [CreateTime], [ModifyUserId], [ModifyTime])");
-                sql.AppendLine(String.Format("  values({0}, '{1}', '{2}', '{3}', '{4}', {5}, '{6}', '{7}', '{8}', {9}, '{10}', {11});",
+                sql.AppendLine(String.Format("  values({0}, '{1}', '{2}', N'{3}', N'{4}', {5}, '{6}', '{7}', '{8}', {9}, '{10}', {11});",
                         //Guid.NewGuid().ToString().ToLower(),
                         "newid()",
                         systemcode.CodeKey,
                         codeitem.Code,
-                        codeitem.Value,
-                        codeitem.Description,
+                        codeitem.Value.Replace("'", "''"),
+                        codeitem.Description.Replace("'", "''"),
                         codeitem.Sort,
                         "Y",
                         codeitem.CodeType,
