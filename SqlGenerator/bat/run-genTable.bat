@@ -1,0 +1,1 @@
+SqlGenerator.exe table mssql source.txt dist.txt

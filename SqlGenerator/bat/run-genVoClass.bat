@@ -1,0 +1,1 @@
+SqlGenerator.exe table voclass source.txt dist.txt

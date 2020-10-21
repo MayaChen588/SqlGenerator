@@ -1,0 +1,1 @@
+SqlGenerator.exe trans mssql d:\db2look.sql d:\dist.sql
