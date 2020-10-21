@@ -48,6 +48,7 @@
     <Compile Include="Generator.cs" />
     <Compile Include="Index.cs" />
     <Compile Include="KeyItem.cs" />
+    <Compile Include="ClassHelper.cs" />
     <Compile Include="MSSqlHelper.cs" />
     <Compile Include="MysqlHelper.cs" />
     <Compile Include="SystemCode.cs" />

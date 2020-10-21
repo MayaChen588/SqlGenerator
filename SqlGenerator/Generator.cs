@@ -145,25 +145,45 @@ namespace SqlGenerator
             }
 
 
-            using (var file = new StreamWriter(distFile, false, Encoding.UTF8))
+            if (sqlType == "voclass")
             {
-                Console.WriteLine(String.Format("\r\n\r\n<<<<<<<<< Generate sql >>>>>>>>>>>"));
+                string classContent = null;
+
                 foreach (var table in tables)
                 {
-                    Console.WriteLine(String.Format("Generate sql {0}...", table.Name));
+                    classContent = ClassHelper.GenerateVoClass(table);
 
-                    if (sqlType == "mysql")
+                    if (!String.IsNullOrEmpty(classContent))
                     {
-                        file.WriteLine(MysqlHelper.GenerateSql(table));
-                    }
-                    if (sqlType == "mssql")
-                    {
-                        file.WriteLine(MSSqlHelper.GenerateSql(table));
-                        file.WriteLine("GO");
-                    }
+                        string path = Path.Combine(Path.GetFullPath(distFile).Replace(distFile, ""), $"{table.Name.Replace("TExt", "")}.cs");
 
-                    file.Write(Environment.NewLine);
-                    file.Write(Environment.NewLine);
+                        File.WriteAllText(path, classContent, Encoding.UTF8);
+                    }
+                }
+            }
+            else
+            {
+                using (var file = new StreamWriter(distFile, false, Encoding.UTF8))
+                {
+                    Console.WriteLine(String.Format("\r\n\r\n<<<<<<<<< Generate vo class >>>>>>>>>>>"));
+                    foreach (var table in tables)
+                    {
+                        Console.WriteLine(String.Format("Generate sql {0}...", table.Name));
+
+                        if (sqlType == "mysql")
+                        {
+                            file.WriteLine(MysqlHelper.GenerateSql(table));
+                        }
+
+                        if (sqlType == "mssql")
+                        {
+                            file.WriteLine(MSSqlHelper.GenerateSql(table));
+                            file.WriteLine("GO");
+                        }
+
+                        file.Write(Environment.NewLine);
+                        file.Write(Environment.NewLine);
+                    }
                 }
             }
 
