@@ -17,7 +17,7 @@ namespace SqlGenerator
         {
             StringBuilder sb = new StringBuilder();
             int columncount = 0;
-
+            string className = table.Name.Replace("TExt", "");
 
             // generate class script
             sb.AppendLine("using System;");
@@ -25,16 +25,49 @@ namespace SqlGenerator
             sb.AppendLine("using System.Linq;");
             sb.AppendLine("using System.Text;");
             sb.AppendLine("using System.Threading.Tasks;");
+            sb.AppendLine("using Anz.Jcic.Infrastructure.DataAccess.Models.JisModel;");
             sb.AppendLine("using Anz.Jcic.Infrastructure.Domain;");
+            sb.AppendLine("using Anz.Jcic.Infrastructure.Resources;");
             sb.AppendLine("");
             sb.AppendLine("namespace Anz.Jcic.Domain.Entity.JcicAtom");
             sb.AppendLine("{");
             sb.AppendLine("    /// <summary>");
             sb.AppendLine($"    /// {table.Description}");
             sb.AppendLine("    /// </summary>");
-            sb.AppendLine($"    public class {table.Name.Replace("TExt", "")} : EntityBase");
+            sb.AppendLine($"    public class {className} : EntityBase");
             sb.AppendLine("    {");
 
+
+            // generate 建構子
+            sb.AppendLine(@"
+        /// <summary>
+        /// 使用Data entity物件初始化Entity執行個體
+        /// </summary>
+        /// <param name=""dataEntity"">data entity物件</param>
+        /// <remarks>僅限同一組件內由Manager呼叫使用，以建立初始物件</remarks>
+" + $"        internal {className}(TExt{className} dataEntity)" + @"
+        {
+            if (dataEntity == null)
+            {
+                throw new ArgumentNullException(nameof(dataEntity));
+            }
+
+            if (String.IsNullOrEmpty(dataEntity.FormType))
+            {
+                throw new ArgumentException(String.Format(MessageResource.NotSetPropertyValue, ""Form.FormType""));
+            }
+
+            TransferFromDataEntity(dataEntity);
+        }
+");
+
+            sb.AppendLine("");
+            sb.AppendLine("");
+            sb.AppendLine("");
+
+
+            // generate Columns
+            columncount = 0;
             foreach (var column in table.Columns)
             {
                 columncount++;
@@ -72,15 +105,15 @@ namespace SqlGenerator
                 }
                 else if (column.DataType.ToLower() == "int")
                 {
-                    dataType = "int";
+                    dataType = "int?";
                 }
                 else if (column.DataType.ToLower() == "double")
                 {
-                    dataType = "decimal";
+                    dataType = "decimal?";
                 }
                 else if (column.DataType.ToLower().StartsWith("decimal"))
                 {
-                    dataType = "decimal";
+                    dataType = "decimal?";
                 }
                 else
                 {
@@ -92,6 +125,59 @@ namespace SqlGenerator
                 sb.AppendLine("        /// </summary>");
                 sb.AppendLine($"        public {dataType} {column.Name} {{ get; set; }}");
             }
+
+            sb.AppendLine("");
+            sb.AppendLine("");
+            sb.AppendLine("");
+
+
+            // generate Methods
+            sb.AppendLine(@"
+        /// <summary>
+        /// 將Data Entity物件轉換為Entity物件
+        /// </summary>
+        /// <param name=""dataEntity"">Data Entity物件</param>
+" + $"        private void TransferFromDataEntity(TExt{className} dataEntity)" + @"
+        {
+            if (dataEntity == null)
+            {
+                throw new ArgumentNullException(nameof(dataEntity));
+            }
+
+");
+
+            columncount = 0;
+            foreach (var column in table.Columns)
+            {
+                columncount++;
+
+                if (column.Name.Equals("Uid", StringComparison.OrdinalIgnoreCase) ||
+                    column.Name.Equals("RowVersion", StringComparison.OrdinalIgnoreCase) ||
+                    column.Name.Equals("CreateUserId", StringComparison.OrdinalIgnoreCase) ||
+                    column.Name.Equals("CreateTime", StringComparison.OrdinalIgnoreCase) ||
+                    column.Name.Equals("ModifyUserId", StringComparison.OrdinalIgnoreCase) ||
+                    column.Name.Equals("ModifyTime", StringComparison.OrdinalIgnoreCase))
+                {
+                    continue;
+                }
+
+                sb.AppendLine($"            this.{column.Name} = dataEntity.{column.Name};");
+            }
+
+
+            sb.AppendLine(@"
+            this.ExtendProperty = new ExtendProperty()
+            {
+                Uid = dataEntity.Uid.ToString(),
+                Version = BitConverter.ToInt64(dataEntity.RowVersion, 0),
+                CreateUserId = !String.IsNullOrEmpty(dataEntity.CreateUserId) ? dataEntity.CreateUserId : null,
+                CreateTime = dataEntity.CreateTime != null ? dataEntity.CreateTime : (DateTime?)null,
+                ModifyUserId = !String.IsNullOrEmpty(dataEntity.ModifyUserId) ? dataEntity.ModifyUserId : null,
+                ModifyTime = dataEntity.ModifyTime == null ? (DateTime?)null : dataEntity.ModifyTime,
+            };
+        }
+");
+
 
             sb.AppendLine("    }");
             sb.AppendLine("}");
