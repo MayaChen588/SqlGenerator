@@ -66,7 +66,7 @@ namespace SqlGenerator
                 sql.Append(String.Format("    {0,-31} {1, -15}{2}{3}{4}",
                     "[" + column.Name + "]",
                     dataType,
-                    column.DataType.ToLower().EndsWith("char") ? " collate Chinese_Taiwan_Stroke_CI_AS" : "",
+                    column.DataType.ToLower().EndsWith("char") ? " collate Chinese_Taiwan_Stroke_CI_AS_WS" : "",
                     column.Mandatory ? " not null" : "",
                     columncount < table.Columns.Count ? "," : ""));
 
